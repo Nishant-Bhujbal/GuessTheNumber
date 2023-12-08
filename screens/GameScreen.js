@@ -1,5 +1,5 @@
 import { useState,useEffect } from "react";
-import { Text,View ,StyleSheet,Platform,StatusBar, Alert, FlatList} from "react-native"
+import { Text,View ,StyleSheet,Platform,StatusBar, Alert, FlatList,useWindowDimensions} from "react-native"
 import {Ionicons} from '@expo/vector-icons'
 
 import Title from "../components/ui/Title";
@@ -29,6 +29,8 @@ function GameScreen({userNumber,onGameOver}) {
   const initalGuess = generateRandomBetween(1,100,userNumber);
   const [currentGuess,setCurrentGuess] = useState(initalGuess);
   const [guessRounds,setGuessRounds] = useState([initalGuess]);
+
+  const {height,width} = useWindowDimensions();
 
 
   useEffect(()=>{
@@ -68,10 +70,8 @@ function GameScreen({userNumber,onGameOver}) {
 
   const guessRoundsListLength = guessRounds.length;
 
-  return (
-  <View style={styles.screen}>
-    <Title>Opponent's Guess</Title>
-    <NumberContainer>{currentGuess}</NumberContainer>
+  let content = (<>
+  <NumberContainer>{currentGuess}</NumberContainer>
     <Card>
     <InstructionText style={styles.instructionText} >Higher or lower</InstructionText>
     <View style = {styles.buttonsContainer}>
@@ -87,6 +87,32 @@ function GameScreen({userNumber,onGameOver}) {
     </View>
     </View>
     </Card>
+  </>);
+
+  if(width > 600){
+    content = (
+      <>
+        <View style={styles.buttonsContainerWide}>
+        <View style = {styles.buttonContainer}>
+      <PrimaryButton onPress={nextGuessHandler.bind(this,'lower')}>
+      <Ionicons name="md-remove"size={24} color='white' />
+      </PrimaryButton>
+    </View>
+        <NumberContainer>{currentGuess}</NumberContainer>
+    <View style={styles.buttonContainer}>
+      <PrimaryButton onPress={nextGuessHandler.bind(this,'greater')}>
+      <Ionicons name="md-add" size={24} color='white' />
+      </PrimaryButton>
+    </View>
+        </View>
+      </>
+    );
+  }
+
+  return (
+  <View style={styles.screen}>
+    <Title>Opponent's Guess</Title>
+    {content}
     <View style={styles.listContainer}>
     <FlatList 
       data={guessRounds} 
@@ -110,6 +136,7 @@ const styles = StyleSheet.create({
     flex : 1,
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
     paddingHorizontal : 24,
+    alignItems : 'center'
   },
   buttonsContainer : {
     flexDirection : 'row',
@@ -119,6 +146,10 @@ const styles = StyleSheet.create({
   },
   instructionText : {
     marginBottom : 12,
+  },
+  buttonsContainerWide : {
+    flexDirection : 'row',
+    alignItems : 'center'
   },
   listContainer : {
     flex : 1,
